@@ -9,3 +9,72 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model Event {
+  id              Int        @id @default(autoincrement())
+  eventName       String
+  startDateTime   DateTime
+  endDateTime     DateTime
+  isActive        Boolean    @default(false)
+  isStarted       Boolean    @default(false)
+  isFinished      Boolean    @default(false)
+  hasMaxAttendees Boolean    @default(false)
+  maxAttendees    Int
+  totalAttendees  Int
+  pictureUrl      String
+  qrUrl           String
+  eventCreator    User       @relation(fields: [eventCreatorId], references: [id])
+  eventCreatorId  Int
+  venueName       String
+  venueAddress    String
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+  deletedAt       DateTime?  @map("deleted_at")
+  Attendee        Attendee[]
+  Article         Article[]
+}
+
+model User {
+  id        Int        @id @default(autoincrement())
+  name      String
+  email     String
+  username  String     @unique
+  password  String
+  photoUrl  String
+  phone     String
+  instagram String
+  twitter   String
+  facebook  String
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  deletedAt DateTime?  @map("deleted_at")
+  Event     Event[]
+  Attendee  Attendee[]
+  Article   Article[]
+}
+
+model Attendee {
+  id            Int       @id @default(autoincrement())
+  user          User      @relation(fields: [userId], references: [id])
+  userId        Int
+  event         Event     @relation(fields: [eventId], references: [id])
+  eventId       Int
+  numberOfSeats Int
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  deletedAt     DateTime? @map("deleted_at")
+}
+
+model Article {
+  id        Int       @id @default(autoincrement())
+  title     String
+  content   String
+  author    User      @relation(fields: [authorId], references: [id])
+  authorId  Int
+  event     Event     @relation(fields: [eventId], references: [id])
+  eventId   Int
+  isInPage  Boolean
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime? @map("deleted_at")
+}
