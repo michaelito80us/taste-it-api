@@ -12,6 +12,7 @@ datasource db {
 
 model Event {
   id              Int        @id @default(autoincrement())
+  slug            String     @unique
   eventName       String
   startDateTime   DateTime
   endDateTime     DateTime
@@ -20,13 +21,13 @@ model Event {
   isFinished      Boolean    @default(false)
   hasMaxAttendees Boolean    @default(false)
   maxAttendees    Int
-  totalAttendees  Int
+  totalAttendees  Int        @default(0)
   pictureUrl      String
   qrUrl           String
   eventCreator    User       @relation(fields: [eventCreatorId], references: [id])
   eventCreatorId  Int
   venueName       String
-  venueAddress    String
+  venueAddress    String?
   createdAt       DateTime   @default(now())
   updatedAt       DateTime   @updatedAt
   deletedAt       DateTime?  @map("deleted_at")
@@ -36,15 +37,16 @@ model Event {
 
 model User {
   id        Int        @id @default(autoincrement())
+  slug      String     @unique
   name      String
   email     String
   username  String     @unique
   password  String
-  photoUrl  String
-  phone     String
-  instagram String
-  twitter   String
-  facebook  String
+  photoUrl  String?
+  phone     String?
+  instagram String?
+  twitter   String?
+  facebook  String?
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
   deletedAt DateTime?  @map("deleted_at")
@@ -67,6 +69,7 @@ model Attendee {
 
 model Article {
   id        Int       @id @default(autoincrement())
+  slug      String    @unique
   title     String
   content   String
   author    User      @relation(fields: [authorId], references: [id])
@@ -76,5 +79,13 @@ model Article {
   isInPage  Boolean
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
+  deletedAt DateTime? @map("deleted_at")
+}
+
+model Slug {
+  id        Int      @id @default(autoincrement())
+  slug      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   deletedAt DateTime? @map("deleted_at")
 }

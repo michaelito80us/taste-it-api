@@ -1,0 +1,9 @@
+-- AlterTable
+ALTER TABLE "Event" ALTER COLUMN "venueAddress" DROP NOT NULL;
+
+-- AlterTable
+ALTER TABLE "User" ALTER COLUMN "photoUrl" DROP NOT NULL,
+ALTER COLUMN "phone" DROP NOT NULL,
+ALTER COLUMN "instagram" DROP NOT NULL,
+ALTER COLUMN "twitter" DROP NOT NULL,
+ALTER COLUMN "facebook" DROP NOT NULL;
