@@ -2,9 +2,9 @@ const prisma = require('../models/index.js');
 const randomstring = require('randomstring');
 
 exports.createEvent = async (req, res) => {
-  let slug = randomstring.generate(6);
+  let slug = randomstring.generate(7);
   while (await prisma.slug.findUnique({ where: { slug } })) {
-    slug = randomstring.generate(6);
+    slug = randomstring.generate(7);
   }
   try {
     const {
@@ -13,12 +13,17 @@ exports.createEvent = async (req, res) => {
       startDateTime,
       endDateTime,
       isActive,
+      hasMaxAttendees,
       maxAttendees,
       venueName,
       venueAddress,
       pictureUrl,
-      eventCreatorId,
     } = req.body;
+
+    // TODO: check that startDateTime is before endDateTime
+    // TODO: make sure that all mandatory fields are present
+
+    const eventCreatorId = req.user.id;
 
     const event = await prisma.event.create({
       data: {
@@ -28,13 +33,14 @@ exports.createEvent = async (req, res) => {
         startDateTime,
         endDateTime,
         isActive,
+        hasMaxAttendees,
         maxAttendees,
         venueName,
         venueAddress,
         pictureUrl,
         eventCreator: {
           connect: {
-            id: eventCreatorId,
+            id: Number(eventCreatorId),
           },
         },
       },
@@ -47,6 +53,14 @@ exports.createEvent = async (req, res) => {
 };
 
 exports.updateEvent = async (req, res) => {
+  if (req.user.id !== Number(req.body.eventCreatorId)) {
+    return res.status(401).json({ error: 'not your event' });
+  }
+
+  // TODO: check that startDateTime is before endDateTime
+  // TODO: if changing max attendees, check that there are not more attendees than new max attendees
+  //
+
   try {
     const {
       eventName,
@@ -54,6 +68,7 @@ exports.updateEvent = async (req, res) => {
       startDateTime,
       endDateTime,
       isActive,
+      hasMaxAttendees,
       maxAttendees,
       venueName,
       venueAddress,
@@ -61,7 +76,7 @@ exports.updateEvent = async (req, res) => {
       isStarted,
       isFinished,
       totalAttendees,
-    } = req.body;
+    } = req.body.new;
 
     const event = await prisma.event.update({
       where: {
@@ -73,6 +88,7 @@ exports.updateEvent = async (req, res) => {
         startDateTime,
         endDateTime,
         isActive,
+        hasMaxAttendees,
         maxAttendees,
         venueName,
         venueAddress,
@@ -104,7 +120,11 @@ exports.getEvent = async (req, res) => {
         user: true,
       },
     });
-    res.status(200).json({ event, attendees });
+    if (req.user.id === event.eventCreatorId) {
+      res.status(200).json({ event, attendees });
+    } else {
+      res.status(200).json({ event });
+    }
   } catch (err) {
     console.log(err);
     res.status(500).json({ error: err });
@@ -112,6 +132,10 @@ exports.getEvent = async (req, res) => {
 };
 
 exports.deleteEvent = async (req, res) => {
+  if (req.user.id !== Number(req.body.eventCreatorId)) {
+    return res.status(401).json({ error: 'not your event' });
+  }
+
   try {
     const event = await prisma.event.delete({
       where: {
@@ -119,9 +143,9 @@ exports.deleteEvent = async (req, res) => {
       },
     });
     res.status(200).json(event);
-  } catch (err) {
-    console.log(err);
-    res.status(500).json({ error: err });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error });
   }
 };
 

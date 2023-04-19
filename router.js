@@ -1,33 +1,33 @@
-const express = require('express');
-const router = express.Router();
+const router = require('express').Router();
+const authMiddleware = require('./middlewares/auth');
 
 const eventsController = require('./controllers/eventsController.js');
 const usersController = require('./controllers/usersController.js');
 const attendeesController = require('./controllers/attendeesController.js');
 const sessionsController = require('./controllers/sessionsController.js');
 
-router.get('/', (req, res) => {
-  res.send('Hello World!, can you log in?');
-});
-
 // for logging in and out and session management
-router.post('/login', sessionsController.login);
-router.get('/logout', sessionsController.logout);
-router.get('/auth', sessionsController.auth);
+router.post('/login', sessionsController.login); // finished - tested
+router.post('/logout', authMiddleware, sessionsController.logout); // finished - tested
+// router.get('/auth', sessionsController.auth);
 
 // for creating and managing events
-router.post('/events', eventsController.createEvent);
-router.put('/events/:slug', eventsController.updateEvent);
-router.delete('/events/:slug', eventsController.deleteEvent);
+router.post('/events', authMiddleware, eventsController.createEvent); // finished - tested
+router.put('/events/:slug', authMiddleware, eventsController.updateEvent); // finished - tested
+router.delete('/events/:slug', authMiddleware, eventsController.deleteEvent); // finished - tested
 
 // to find events by creator or attendee
-router.get('/events/:slug', eventsController.getEvent);
-router.get('/events/creator/:slug', eventsController.eventsByCreator);
-router.get('/events/attendee/:slug', eventsController.eventsByAttendee);
+router.get('/events/:slug', authMiddleware, eventsController.getEvent);
+router.get('/events/creator', authMiddleware, eventsController.eventsByCreator);
+router.get(
+  '/events/attendee',
+  authMiddleware,
+  eventsController.eventsByAttendee
+);
 
 // for creating and managing users
-router.post('/users', usersController.createUser);
-router.put('/users/:slug', usersController.updateUser);
+router.post('/register', usersController.createUser); // finished - tested
+router.put('/users/:slug', authMiddleware, usersController.updateUser);
 
 // joining and leaving events
 router.post('/attendees', attendeesController.joinEvent);

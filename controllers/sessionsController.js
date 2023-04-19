@@ -1,5 +1,5 @@
-const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
+const prisma = require('../models/index.js');
 
 exports.login = async (req, res) => {
   try {
@@ -16,10 +16,15 @@ exports.login = async (req, res) => {
     if (!isMatch) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
-    const token = jwt.sign({ id: user.id }, env('JWT_SECRET'), {
-      expiresIn: '7d',
+    const session = req.session;
+    session.slug = user.slug;
+
+    console.log(session);
+
+    res.status(200).send({
+      message: 'Logged in',
+      user: { name: user.name, slug: user.slug },
     });
-    res.status(200).json({ token });
   } catch (err) {
     console.log(err);
     res.status(500).json({ error: err });
@@ -27,10 +32,14 @@ exports.login = async (req, res) => {
 };
 
 exports.logout = async (req, res) => {
-  try {
-    res.status(200).json({ message: 'Logged out' });
-  } catch (err) {
-    console.log(err);
-    res.status(500).json({ error: err });
-  }
+  req.session.destroy((error) => {
+    if (error) {
+      res
+        .status(500)
+        .send({ error, message: 'Could not log out, please try again' });
+    } else {
+      res.clearCookie('sid');
+      res.status(200).send({ message: 'Logout successful' });
+    }
+  });
 };
