@@ -8,6 +8,7 @@ const { PrismaClient } = require('@prisma/client');
 
 const router = require('./router');
 
+// TODO: add cors config
 const corsConfig = {
   origin: 'http://localhost:3000',
   credentials: true,
@@ -18,6 +19,7 @@ const corsConfig2 = {};
 app.use(cors());
 app.use(express.json());
 
+// TODO: modify the sessions security settings
 app.use(
   session({
     name: 'sid',
