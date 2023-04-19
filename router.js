@@ -17,20 +17,24 @@ router.put('/events/:slug', authMiddleware, eventsController.updateEvent); // fi
 router.delete('/events/:slug', authMiddleware, eventsController.deleteEvent); // finished - tested
 
 // to find events by creator or attendee
-router.get('/events/:slug', authMiddleware, eventsController.getEvent);
-router.get('/events/creator', authMiddleware, eventsController.eventsByCreator);
+router.get('/events/creator', authMiddleware, eventsController.eventsByCreator); // finished - tested
 router.get(
   '/events/attendee',
   authMiddleware,
   eventsController.eventsByAttendee
-);
+); // finished - tested
+router.get('/events/:slug', authMiddleware, eventsController.getEvent); // finished - tested
 
 // for creating and managing users
 router.post('/register', usersController.createUser); // finished - tested
 router.put('/users/:slug', authMiddleware, usersController.updateUser);
 
 // joining and leaving events
-router.post('/attendees', attendeesController.joinEvent);
-router.delete('/attendees/:slug', attendeesController.leaveEvent);
+router.post('/attendees', authMiddleware, attendeesController.joinEvent); // finished - tested
+router.delete(
+  '/attendees/:slug',
+  authMiddleware,
+  attendeesController.leaveEvent
+);
 
 module.exports = router;

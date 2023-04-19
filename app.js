@@ -2,8 +2,9 @@ const express = require('express');
 const app = express();
 var cors = require('cors');
 const SERVER_PORT = process.env.SERVER_PORT || 3001;
-const sessions = require('express-session');
-const cookieParser = require('cookie-parser');
+const session = require('express-session');
+const { PrismaSessionStore } = require('@quixo3/prisma-session-store');
+const { PrismaClient } = require('@prisma/client');
 
 const router = require('./router');
 
@@ -17,21 +18,24 @@ const corsConfig2 = {};
 app.use(cors());
 app.use(express.json());
 
-app.use(cookieParser());
-
 app.use(
-  sessions({
+  session({
     name: 'sid',
     saveUninitialized: false,
-    resave: true,
+    resave: false,
     secret: process.env.SECRET,
     cookie: {
       maxAge: 1000 * 60 * 60 * 24 * 365, // 1yr
       sameSite: false,
-      httpOnly: true,
+      httpOnly: false,
       // we would want to set secure=true in a production environment
       secure: false,
     },
+    store: new PrismaSessionStore(new PrismaClient(), {
+      checkPeriod: 2 * 60 * 1000, //ms
+      dbRecordIdIsSessionId: true,
+      dbRecordIdFunction: undefined,
+    }),
   })
 );
 

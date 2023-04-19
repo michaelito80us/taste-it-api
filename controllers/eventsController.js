@@ -32,8 +32,8 @@ exports.createEvent = async (req, res) => {
         description,
         startDateTime,
         endDateTime,
-        isActive,
-        hasMaxAttendees,
+        isActive: isActive === 'true',
+        hasMaxAttendees: hasMaxAttendees === 'true',
         maxAttendees,
         venueName,
         venueAddress,
@@ -87,14 +87,14 @@ exports.updateEvent = async (req, res) => {
         description,
         startDateTime,
         endDateTime,
-        isActive,
-        hasMaxAttendees,
+        isActive: isActive === 'true',
+        hasMaxAttendees: hasMaxAttendees === 'true',
         maxAttendees,
         venueName,
         venueAddress,
         pictureUrl,
-        isStarted,
-        isFinished,
+        isStarted: isStarted === 'true',
+        isFinished: isFinished === 'true',
         totalAttendees,
       },
     });
@@ -120,7 +120,7 @@ exports.getEvent = async (req, res) => {
         user: true,
       },
     });
-    if (req.user.id === event.eventCreatorId) {
+    if (req.user && req.user.id === event.eventCreatorId) {
       res.status(200).json({ event, attendees });
     } else {
       res.status(200).json({ event });
@@ -143,9 +143,9 @@ exports.deleteEvent = async (req, res) => {
       },
     });
     res.status(200).json(event);
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ error });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ err });
   }
 };
 
@@ -153,7 +153,7 @@ exports.eventsByCreator = async (req, res) => {
   try {
     const creator = await prisma.user.findUnique({
       where: {
-        slug: req.params.slug,
+        slug: req.user.slug,
       },
     });
     const events = await prisma.event.findMany({
@@ -172,12 +172,12 @@ exports.eventsByAttendee = async (req, res) => {
   try {
     const attendee = await prisma.user.findUnique({
       where: {
-        slug: req.params.slug,
+        slug: req.user.slug,
       },
     });
     const events = await prisma.event.findMany({
       where: {
-        attendees: {
+        Attendee: {
           some: {
             id: attendee.id,
           },

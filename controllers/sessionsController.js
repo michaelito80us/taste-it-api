@@ -16,10 +16,11 @@ exports.login = async (req, res) => {
     if (!isMatch) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
-    const session = req.session;
-    session.slug = user.slug;
+    req.session.slug = user.slug;
+    req.session.uid = user.id;
+    req.session.save();
 
-    console.log(session);
+    console.log(req.session);
 
     res.status(200).send({
       message: 'Logged in',

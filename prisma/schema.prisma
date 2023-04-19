@@ -88,3 +88,10 @@ model Slug {
   updatedAt DateTime  @updatedAt
   deletedAt DateTime? @map("deleted_at")
 }
+
+model Session {
+  id        String   @id
+  sid       String   @unique
+  data      String
+  expiresAt DateTime
+}
