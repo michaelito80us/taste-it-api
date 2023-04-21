@@ -14,13 +14,14 @@ model Event {
   id              Int        @id @default(autoincrement())
   slug            String     @unique
   eventName       String
+  description     String?
   startDateTime   DateTime
   endDateTime     DateTime
   isActive        Boolean    @default(false)
   isStarted       Boolean    @default(false)
   isFinished      Boolean    @default(false)
   hasMaxAttendees Boolean    @default(false)
-  maxAttendees    Int
+  maxAttendees    Int        @default(0)
   totalAttendees  Int        @default(0)
   pictureUrl      String
   eventCreator    User       @relation(fields: [eventCreatorId], references: [id])

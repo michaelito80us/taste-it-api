@@ -9,7 +9,7 @@ const sessionsController = require('./controllers/sessionsController.js');
 // for logging in and out and session management
 router.post('/login', sessionsController.login); // finished - tested
 router.post('/logout', authMiddleware, sessionsController.logout); // finished - tested
-// router.get('/auth', sessionsController.auth);
+router.get('/auth', authMiddleware, sessionsController.auth);
 
 // for creating and managing events
 router.post('/events', authMiddleware, eventsController.createEvent); // finished - tested

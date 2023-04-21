@@ -1,6 +1,18 @@
 const bcrypt = require('bcrypt');
 const prisma = require('../models/index.js');
 
+exports.auth = async (req, res) => {
+  if (req.user) {
+    res
+      .status(200)
+      .json({
+        user: { id: req.user.id, name: req.user.name, slug: req.user.slug },
+      });
+  } else {
+    res.status(401).json({ error: 'Not logged in' });
+  }
+};
+
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -24,7 +36,7 @@ exports.login = async (req, res) => {
 
     res.status(200).send({
       message: 'Logged in',
-      user: { name: user.name, slug: user.slug },
+      user: { name: user.name, slug: user.slug, id: user.id },
     });
   } catch (err) {
     console.log(err);

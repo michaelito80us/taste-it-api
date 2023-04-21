@@ -14,9 +14,7 @@ const corsConfig = {
   credentials: true,
 };
 
-const corsConfig2 = {};
-
-app.use(cors());
+app.use(cors(corsConfig));
 app.use(express.json());
 
 // TODO: modify the sessions security settings

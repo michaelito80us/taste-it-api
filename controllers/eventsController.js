@@ -7,6 +7,8 @@ exports.createEvent = async (req, res) => {
     slug = randomstring.generate(7);
   }
   try {
+    console.log('REQ.BODY:::::::::::', req.body);
+
     const {
       eventName,
       description,
