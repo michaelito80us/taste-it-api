@@ -3,11 +3,9 @@ const prisma = require('../models/index.js');
 
 exports.auth = async (req, res) => {
   if (req.user) {
-    res
-      .status(200)
-      .json({
-        user: { id: req.user.id, name: req.user.name, slug: req.user.slug },
-      });
+    res.status(200).json({
+      user: { id: req.user.id, name: req.user.name, slug: req.user.slug },
+    });
   } else {
     res.status(401).json({ error: 'Not logged in' });
   }
@@ -32,7 +30,7 @@ exports.login = async (req, res) => {
     req.session.uid = user.id;
     req.session.save();
 
-    console.log(req.session);
+    console.log('this is the cookie that will be sent: ', req.session);
 
     res.status(200).send({
       message: 'Logged in',

@@ -36,7 +36,7 @@ exports.createEvent = async (req, res) => {
         endDateTime,
         isActive: isActive === 'true',
         hasMaxAttendees: hasMaxAttendees === 'true',
-        maxAttendees,
+        maxAttendees: Number(maxAttendees),
         venueName,
         venueAddress,
         pictureUrl,
@@ -114,16 +114,29 @@ exports.getEvent = async (req, res) => {
         slug: req.params.slug,
       },
     });
-    const attendees = await prisma.attendee.findMany({
-      where: {
-        eventId: event.id,
-      },
-      include: {
-        user: true,
-      },
-    });
+
+    console.log('REQ.USER --->', req.user);
+    console.log('EVENT --->', event);
     if (req.user && req.user.id === event.eventCreatorId) {
+      const attendees = await prisma.attendee.findMany({
+        where: {
+          eventId: event.id,
+        },
+        include: {
+          user: true,
+        },
+      });
       res.status(200).json({ event, attendees });
+    } else if (req.user) {
+      const attendee = await prisma.attendee.findUnique({
+        where: {
+          userId_eventId: {
+            userId: req.user.id,
+            eventId: event.id,
+          },
+        },
+      });
+      res.status(200).json({ event, attendee });
     } else {
       res.status(200).json({ event });
     }
@@ -162,8 +175,32 @@ exports.eventsByCreator = async (req, res) => {
       where: {
         eventCreatorId: creator.id,
       },
+      include: {
+        Attendee: {
+          include: {
+            user: {
+              select: {
+                name: true,
+                email: true,
+                photoUrl: true,
+              },
+            },
+          },
+        },
+      },
+      orderBy: {
+        startDateTime: 'asc',
+      },
     });
-    res.status(200).json(events);
+
+    const pastEvents = [];
+    const futureEvents = [];
+
+    events.forEach((event) => {
+      if (event.startDateTime < new Date()) pastEvents.push(event);
+      else futureEvents.push(event);
+    });
+    res.status(200).json({ past: pastEvents, upcoming: futureEvents });
   } catch (err) {
     console.log(err);
     res.status(500).json({ error: err });
@@ -181,12 +218,33 @@ exports.eventsByAttendee = async (req, res) => {
       where: {
         Attendee: {
           some: {
-            id: attendee.id,
+            userId: attendee.id,
           },
         },
       },
+      // include: {
+      //   Attendee: {
+      //     where: {
+      //       userId: attendee.id,
+      //     },
+      //     select: {
+      //       numberOfSeats: true,
+      //       id: true,
+      //     },
+      //   },
+      // },
+      orderBy: {
+        startDateTime: 'asc',
+      },
     });
-    res.status(200).json(events);
+    const pastEvents = [];
+    const futureEvents = [];
+
+    events.forEach((event) => {
+      if (event.startDateTime < new Date()) pastEvents.push(event);
+      else futureEvents.push(event);
+    });
+    res.status(200).json({ past: pastEvents, upcoming: futureEvents });
   } catch (err) {
     console.log(err);
     res.status(500).json({ error: err });

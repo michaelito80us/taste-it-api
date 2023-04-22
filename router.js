@@ -23,7 +23,7 @@ router.get(
   authMiddleware,
   eventsController.eventsByAttendee
 ); // finished - tested
-router.get('/events/:slug', authMiddleware, eventsController.getEvent); // finished - tested
+router.get('/event/:slug', authMiddleware, eventsController.getEvent); // finished - tested
 
 // for creating and managing users
 router.post('/register', usersController.createUser); // finished - tested
