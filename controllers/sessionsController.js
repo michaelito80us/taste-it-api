@@ -7,6 +7,7 @@ exports.auth = async (req, res) => {
       user: { id: req.user.id, name: req.user.name, slug: req.user.slug },
     });
   } else {
+    console.log('trying to authenticate, but not logged in');
     res.status(401).json({ error: 'Not logged in' });
   }
 };

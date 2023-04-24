@@ -15,6 +15,10 @@ model Event {
   slug            String     @unique
   eventName       String
   description     String?
+  startDate       String     @default("2023-01-01")
+  endDate         String     @default("2023-01-01")
+  startTime       String     @default("00:00:00")
+  endTime         String     @default("00:00:00")
   startDateTime   DateTime
   endDateTime     DateTime
   isActive        Boolean    @default(false)
@@ -34,6 +38,8 @@ model Event {
   deletedAt       DateTime?  @map("deleted_at")
   Attendee        Attendee[]
   Article         Article[]
+
+  @@unique(fields: [slug, isActive], name: "activeEvent")
 }
 
 model User {
@@ -65,6 +71,8 @@ model Attendee {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   deletedAt     DateTime? @map("deleted_at")
+
+  @@unique(fields: [userId, eventId], name: "attendee")
 }
 
 model Article {

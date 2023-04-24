@@ -10,10 +10,7 @@ const router = require('./router');
 
 // TODO: add cors config
 const corsConfig = {
-  origin: [
-    'http://localhost:3000',
-    'https://e67d-45-133-139-102.ngrok-free.app',
-  ],
+  origin: ['http://localhost:3000'],
   credentials: true,
 };
 

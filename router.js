@@ -12,7 +12,8 @@ router.post('/logout', authMiddleware, sessionsController.logout); // finished -
 router.get('/auth', authMiddleware, sessionsController.auth);
 
 // for creating and managing events
-router.post('/events', authMiddleware, eventsController.createEvent); // finished - tested
+// router.post('/events', authMiddleware, eventsController.createEvent); // finished - tested
+router.post('/events', authMiddleware, eventsController.createOrUpdateEvent); // finished - tested
 router.put('/events/:slug', authMiddleware, eventsController.updateEvent); // finished - tested
 router.delete('/events/:slug', authMiddleware, eventsController.deleteEvent); // finished - tested
 
@@ -30,11 +31,15 @@ router.post('/register', usersController.createUser); // finished - tested
 router.put('/users/:slug', authMiddleware, usersController.updateUser);
 
 // joining and leaving events
-router.post('/attendees', authMiddleware, attendeesController.joinEvent); // finished - tested
-router.delete(
-  '/attendees/:slug',
+router.post(
+  '/attendees',
   authMiddleware,
-  attendeesController.leaveEvent
+  attendeesController.createOrUpdateAttendee
 );
+// router.delete(
+//   '/attendees/:slug',
+//   authMiddleware,
+//   attendeesController.leaveEvent
+// );
 
 module.exports = router;

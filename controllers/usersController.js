@@ -9,6 +9,12 @@ exports.createUser = async (req, res) => {
     slug = randomstring.generate(6);
   }
 
+  await prisma.slug.create({
+    data: {
+      slug,
+    },
+  });
+
   try {
     const { name, email, password } = req.body;
 
@@ -27,9 +33,15 @@ exports.createUser = async (req, res) => {
                 password: hash,
               },
             });
-            res
-              .status(201)
-              .json({ username: user.email, id: user.id, slug: user.slug });
+            req.session.slug = user.slug;
+            req.session.uid = user.id;
+            req.session.save();
+
+            console.log('this is the cookie that will be sent: ', req.session);
+
+            res.status(201).json({
+              user: { username: user.email, id: user.id, slug: user.slug },
+            });
           })
           .catch((err) => console.error(err.message));
       }
