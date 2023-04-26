@@ -1,7 +1,7 @@
 const express = require('express');
 const app = express();
 var cors = require('cors');
-const SERVER_PORT = process.env.SERVER_PORT || 3001;
+const port = process.env.SERVER_PORT || 8080;
 const session = require('express-session');
 const { PrismaSessionStore } = require('@quixo3/prisma-session-store');
 const { PrismaClient } = require('@prisma/client');
@@ -18,7 +18,6 @@ const corsConfig = {
     'https://www.go-taste.it',
     'https://master--fanciful-snickerdoodle-5bb1b6.netlify.app',
     'https://fanciful-snickerdoodle-5bb1b6.netlify.app',
-    'https://6cbc-45-133-139-102.ngrok-free.app',
   ],
   credentials: true,
 };
@@ -37,12 +36,12 @@ app.use(
     secret: process.env.SECRET,
     cookie: {
       maxAge: 1000 * 60 * 60 * 24 * 365, // 1yr
-      sameSite: false,
-      // sameSite: 'none',
+      // sameSite: false,
+      sameSite: 'none',
       httpOnly: false,
       // we would want to set secure=true in a production environment
-      secure: false,
-      // secure: true,
+      // secure: false,
+      secure: true,
     },
     store: new PrismaSessionStore(new PrismaClient(), {
       checkPeriod: 2 * 60 * 1000, //ms
@@ -59,6 +58,6 @@ app.get('*', (req, res) => {
   res.status(404).send('Sorry, not found 😞');
 });
 
-app.listen(SERVER_PORT, () => {
-  console.log(`🚀 Amazing app listening on port ${SERVER_PORT}`);
+app.listen(port, () => {
+  console.log(`🚀 Amazing app listening on port ${port}`);
 });
