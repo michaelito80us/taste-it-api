@@ -26,7 +26,6 @@ app.use(cors(corsConfig));
 app.use(express.json());
 
 // TODO: modify the sessions security settings
-app.enable('trust proxy');
 
 app.use(
   session({
