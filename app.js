@@ -26,17 +26,18 @@ app.use(cors(corsConfig));
 app.use(express.json());
 
 // TODO: modify the sessions security settings
-
+app.enable('trust proxy');
 app.use(
   session({
     name: 'sid',
-    saveUninitialized: false,
+    saveUninitialized: true,
     resave: false,
     secret: process.env.SECRET,
+    proxy: true,
     cookie: {
       maxAge: 1000 * 60 * 60 * 24 * 365, // 1yr
       // sameSite: false,
-      sameSite: false,
+      sameSite: 'none',
       httpOnly: false,
       // we would want to set secure=true in a production environment
       // secure: false,
