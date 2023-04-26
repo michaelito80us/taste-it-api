@@ -1,7 +1,7 @@
 const express = require('express');
 const app = express();
 var cors = require('cors');
-const SERVER_PORT = process.env.SERVER_PORT || 3001;
+const port = process.env.SERVER_PORT || 8080;
 const session = require('express-session');
 const { PrismaSessionStore } = require('@quixo3/prisma-session-store');
 const { PrismaClient } = require('@prisma/client');
@@ -59,6 +59,6 @@ app.get('*', (req, res) => {
   res.status(404).send('Sorry, not found 😞');
 });
 
-app.listen(SERVER_PORT, () => {
-  console.log(`🚀 Amazing app listening on port ${SERVER_PORT}`);
+app.listen(port, () => {
+  console.log(`🚀 Amazing app listening on port ${port}`);
 });
