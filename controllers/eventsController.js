@@ -23,7 +23,6 @@ exports.createOrUpdateEvent = async (req, res) => {
 
       const {
         id,
-        slug,
         eventName,
         description,
         startDate,
@@ -34,26 +33,34 @@ exports.createOrUpdateEvent = async (req, res) => {
         endDateTime,
         hasMaxAttendees,
         maxAttendees,
+        oldMaxAttendees,
+        totalAttendees,
         venueName,
         venueAddress,
         pictureUrl,
       } = req.body;
 
+      let slug = req.body.slug;
+
+      console.log('SLUG:::::::::::', slug);
+
+      if (!slug) slug = await createSlug();
+
+      console.log('SLUG:::::::::::', slug);
+      // validation for the event
       if (endDateTime < startDateTime) {
-        res
-          .status(400)
-          .json({
-            type: 'endBeforeStart',
-            msg: 'end date cannot be before start date',
-          });
+        throw new Error('end date cannot be before start date');
       }
-      // if ()
+
+      if (hasMaxAttendees && totalAttendees && maxAttendees < totalAttendees) {
+        throw new Error('max attendees cannot be less than current attendees');
+      }
 
       const eventCreatorId = req.user.id;
 
       const event = await prisma.event.upsert({
         where: {
-          id,
+          slug,
         },
         update: {
           eventName,
@@ -82,6 +89,7 @@ exports.createOrUpdateEvent = async (req, res) => {
           endDateTime,
           hasMaxAttendees,
           maxAttendees,
+          isActive: true,
           venueName,
           venueAddress,
           pictureUrl,
@@ -90,6 +98,29 @@ exports.createOrUpdateEvent = async (req, res) => {
               id: Number(eventCreatorId),
             },
           },
+        },
+      });
+      console.log(event);
+      res.status(201).json(event);
+    } catch (err) {
+      console.log(err);
+      res.status(500).json({ error: err });
+    }
+  } else {
+    res.status(401).json({ msg: 'unauthorized' });
+  }
+};
+
+exports.togglePublishEvent = async (req, res) => {
+  if (req.user) {
+    try {
+      const { id, slug, isActive } = req.body;
+      const event = await prisma.event.update({
+        where: {
+          id,
+        },
+        data: {
+          isActive: !isActive,
         },
       });
       res.status(201).json(event);
@@ -147,7 +178,7 @@ exports.createEvent = async (req, res) => {
         },
       },
     });
-    res.status(201).json(event);
+    res.json(event);
   } catch (err) {
     console.log(err);
     res.status(500).json({ error: err });
@@ -209,19 +240,22 @@ exports.updateEvent = async (req, res) => {
 
 exports.getEvent = async (req, res) => {
   try {
-    const event = await prisma.event.findUnique({
+    let event = await prisma.event.findUnique({
       where: {
-        activeEvent: {
-          slug: req.params.slug,
-          isActive: true,
-        },
+        slug: req.params.slug,
       },
     });
-    console.log('REQ.USER --->', req.user);
-    if (req.user && req.user.id === event.eventCreatorId) {
+
+    console.log('EVENT:', event);
+
+    if (req.user) console.log('REQ.USER --->', req.user);
+    if (req.user && event.eventCreatorId === req.user.id) {
       const event = await prisma.event.findUnique({
         where: {
-          slug: req.params.slug,
+          currentEventCreator: {
+            slug: req.params.slug,
+            eventCreatorId: req.user.id,
+          },
         },
         include: {
           Attendee: {
@@ -246,7 +280,7 @@ exports.getEvent = async (req, res) => {
       console.log('EVENT IF THE USER IS CREATOR:', event);
 
       res.status(200).json({ event });
-    } else if (req.user) {
+    } else if (req.user && event.isActive) {
       const event = await prisma.event.findUnique({
         where: {
           activeEvent: {
@@ -275,7 +309,7 @@ exports.getEvent = async (req, res) => {
         res.status(400).json({ msg: 'event not found' });
       }
     } else {
-      if (event) {
+      if (event && event.isActive) {
         event['userType'] = 'guest';
         console.log('EVENT IF THE USER IS GUEST:', event);
 
