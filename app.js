@@ -40,8 +40,8 @@ app.use(
       sameSite: 'none',
       httpOnly: false,
       // we would want to set secure=true in a production environment
-      // secure: false,
-      secure: true,
+      secure: false,
+      // secure: true,
     },
     store: new PrismaSessionStore(new PrismaClient(), {
       checkPeriod: 2 * 60 * 1000, //ms
