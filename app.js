@@ -12,8 +12,8 @@ const eventsRouter = require('./eventsRouter');
 // TODO: add cors config
 const corsConfig = {
   origin: [
-    'http://localhost:3000',
     'https://go-taste.it',
+    'http://localhost:3000',
     'https://go-taste.it/',
     'https://www.go-taste.it',
     'https://master--fanciful-snickerdoodle-5bb1b6.netlify.app',
